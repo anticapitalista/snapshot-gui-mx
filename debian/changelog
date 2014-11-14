@@ -1,0 +1,13 @@
+snapshot-gui-mx (0.1.1) unstable; urgency=low 
+ 
+  * Removed ps_init code for now.
+
+ -- anticapitalista <antiX@operamail.com>  Mon, 03 Mar 2014 14:30:00 +0200
+
+
+snapshot-gui-mx (0.1.0) unstable; urgency=low 
+ 
+  * Initial Release.
+
+ -- anticapitalista <antiX@operamail.com>  Sun, 19 January 2014 23:30:00 +0200
+

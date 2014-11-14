@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Snapshot
+Comment= Create a live CD snapshot of your running system.
+Exec=gksu snapshot-gui-mx
+Terminal=false
+Type=Application
+Icon=system
+Categories=GNOME;GTK;System;

@@ -1,0 +1,15 @@
+Source: snapshot-gui-mx
+Section: system
+Priority: optional
+Maintainer: anticapitalista <antiX@operamail.com>
+Build-Depends: debhelper (>= 9.20120115)
+Standards-Version: 3.9.4
+Homepage: http://antix.mepis.org
+
+Package: snapshot-gui-mx
+Architecture: all
+Depends: bash, rsync, squashfs-tools, genisoimage, yad, snapshot-cli-mx
+Description: Tool to create a live-CD from the running system
+ Snapshot copies the running system, squashes the copy and
+ makes an iso image file, which can be used to create a customized
+ live-CD.
