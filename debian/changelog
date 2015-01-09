@@ -1,3 +1,17 @@
+snapshot-gui-mx (0.1.3) unstable; urgency=low 
+ 
+  * Updated code to include building a snapshot with a non-default kernel.
+
+ -- anticapitalista <antiX@operamail.com>  Sat, 22 Nov 2014 21:10:00 +0200
+
+
+snapshot-gui-mx (0.1.2) unstable; urgency=low 
+ 
+  * Included ca,de,el,es,fr,it,ja,nl,sv in .desktop file.
+
+ -- anticapitalista <antiX@operamail.com>  Thu, 20 Nov 2014 15:20:00 +0200
+
+
 snapshot-gui-mx (0.1.1) unstable; urgency=low 
  
   * Removed ps_init code for now.

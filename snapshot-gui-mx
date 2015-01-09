@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-version="snapshot-0.2.8 (03.03.2014)"
+version="snapshot-0.2.9 (22.11.2014)"
+ME=${0##*/}
 # adapted for MX-14 by anticapitalista@operamail.com 
 # from version="refractasnapshot-9.0.6-2 (20121026)" by fsmithred@gmail.com (August 2011)
 # which was based primarily on refractasnapshot-8.0.4  by Dean Linkous with ideas
@@ -73,6 +74,7 @@ work_dir=${work_dir:="/home/work"}
 snapshot_dir=${snapshot_dir:="/home/snapshot"}
 save_work=${save_work:="no"}
 snapshot_excludes=${snapshot_excludes:="/usr/lib/snapshot-mx/snapshot_exclude.list"}
+initrd_modules_file=${initrd_modules_file:="/usr/lib/snapshot-mx/initrd_modules.list"}
 snapshot_persist=${snapshot_persist:="no"}
 kernel_image=${kernel_image:="/vmlinuz"}
 initrd_image=${initrd_image:="/initrd.gz"}
@@ -211,6 +213,56 @@ check_directories
 check_space
 detect_kernels
 
+copy_modules() {
+    local to=$1  from=$2 ; shift 2
+
+    local list
+    if [ -f $1 ]; then
+        list=$(cat $1)
+    else
+        list="$*"
+    fi
+   
+    local name mod expr
+    for name in $list; do
+        mod=$(echo $name | sed -e 's/[_-]/[_-]/g' -e 's/$/.ko/')
+        expr="$expr${expr:+ -o} -name $mod"
+    done
+
+    mkdir -p $to
+
+    local mod_list=$(find $from $expr)
+    local count=$(echo "$mod_list" | grep -c .)
+    printf $"Copying %s modules into the initrd\n" $count
+
+    local file sub_dir
+    for file in $mod_list; do
+        #[ "$verbose" ] && echo "Add initrd module $(basename $file .ko)"
+        sub_dir="$to/$(basename $(dirname $file))"
+        mkdir -p $sub_dir
+        cp $file $sub_dir/
+    done
+}
+
+open_initrd() {
+    local file=$1  dir=$2
+    mkdir -p $dir
+    chmod a+rx $dir
+    (cd $dir && gunzip -c $file | cpio -idum)
+}
+
+close_initrd() {
+    local dir=$1  file=$2
+    (cd $dir && find . | cpio -o -H newc --owner root:root | gzip -9) > $file
+    #rm -rf $dir
+}
+ 
+if [ ! -e "$initrd_modules_file" ]; then
+    echo "Could not find list of modules to put into the initrd"
+    echo "Missing file: $initrd_modules_file"
+    exit 2
+fi
+
 # Put information in a yad window to show current settings and disk space 
 
 TEXT2=$"You will need plenty of free space. It is recommended that free space (Avail) in the partition that holds the work directory (probably /) should be two times the total installed system size (Used).
@@ -252,20 +304,20 @@ fi
 # The real work starts here
 cd "$work_dir"
 
-# Run ps_initrd.sh to set up live initrd.gz
-#ps_initrd.sh "$iso_dir"/antiX/initrd.gz open 
-#cd "$iso_dir"/antiX/initrd.gz-image/"$lib_mod_dir"/
-#mkdir $kernel_used
-#cp -R "$lib_mod_dir"/$kernel_used/"$ata_dir" "$iso_dir"/antiX/initrd.gz-image/"$lib_mod_dir"/$kernel_used/
-#ps_initrd.sh "$iso_dir"/antiX/initrd.gz close
-
-#cd $work_dir
-
 #copy correct vmlinuz to "$work_dir"/new-iso/
 echo $"Copying the new-iso filesystem..."
 cp /boot/vmlinuz-$kernel_used "$iso_dir"/antiX/vmlinuz
 rsync -a "$iso_dir"/ "$work_dir"/new-iso/ 
 rm "$iso_dir"/antiX/vmlinuz
+
+initrd_dir=$(mktemp -d /tmp/$ME-XXXXX)
+open_initrd $iso_dir/antiX/initrd.gz $initrd_dir
+
+mod_dir=$initrd_dir/lib/modules
+rm -rf $mod_dir/*
+copy_modules $mod_dir/$kernel_used /lib/modules/$kernel_used $initrd_modules_file
+
+close_initrd $initrd_dir $work_dir/new-iso/antiX/initrd.gz
 
 # Copy the filesystem
 rsync -av / new-squashfs/ --delete --exclude="$work_dir" \
@@ -313,7 +365,6 @@ fi
 # Squash the filesystem copy
 mksquashfs new-squashfs new-iso/antiX/linuxfs ${mksq_opt}  | tee >(yad --width 300 --title "Squashing filesystem..." --progress --pulsate)
 kill $(pgrep yad)
-
 # create the iso file, make it isohybrid
 # create md5sum file for the iso
 echo $"Creating CD/DVD image file..."
@@ -329,9 +380,7 @@ fi
 if [[ $make_md5sum = "yes" ]]; then
 		md5sum "$snapshot_dir"/$filename > "$snapshot_dir"/"$filename".md5
 fi
-
 kill $(pgrep yad)
-
 # Cleanup
 if [[ $save_work = "no" ]]; then
     cd /
@@ -345,6 +394,7 @@ if [[ $snapshot_persist = "yes" ]] ; then
 apt-get purge live-init-mx | tee >(yad --width 300 --title "Removing live-init-mx" --progress --pulsate)
 fi
 kill $(pgrep yad)
+
 yad --width 300 --text $"All finished!"
 
 exit 0

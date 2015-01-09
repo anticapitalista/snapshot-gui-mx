@@ -1,7 +1,25 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Snapshot
-Comment= Create a live CD snapshot of your running system.
+Name[ca]=Snapshot
+Name[de]=Snapshot
+Name[el]=Snapshot
+Name[es]=Snapshot
+Name[fr]=Snapshot
+Name[it]=Snapshot
+Name[ja]=Snapshot
+Name[nl]=Snapshot
+Name[sv]=Snapshot
+Comment=Create a live iso snapshot of your running system.
+Comment[ca]=Crear una instantània ISO del sistema en execució
+Comment[de]=Eine Live-iso Schnappschuss Ihres laufenden Systems erstellen.
+Comment[el]=Δημιουργήστε μια ζωντανή ISO στιγμιότυπο της λειτουργίας του συστήματός σας.
+Comment[es]=Crear una instantánea digital de su sistema activo
+Comment[fr]=Créer un iso live en direct de votre système en marche.
+Comment[it]=Creare una iso Live del tuo sistema attualmente in esecuzione
+Comment[ja]=実行中システムのライブ ISO スナップショットを生成します。
+Comment[nl]=Creeer een live iso snapshot van je werkende systeem
+Comment[sv]=Skapa ett live iso snapshot av det system du kör.
 Exec=gksu snapshot-gui-mx
 Terminal=false
 Type=Application
